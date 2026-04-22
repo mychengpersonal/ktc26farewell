@@ -765,12 +765,27 @@ function showToast(msg, ms = 2200) {
    CELEBRATION
    ============================================================ */
 
+let cachedShareFile = null;
+
+// Pre-renders the share image as soon as the celebration screen opens so that
+// triggerImageAction can call navigator.share() with no async gap, satisfying
+// iOS Safari's strict user-gesture requirement.
+async function prepareShareFile() {
+  try {
+    const canvas = await generateShareCanvas();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    cachedShareFile = new File([blob], "kellogg-farewell-26.png", { type: "image/png" });
+  } catch (_) {}
+}
+
 function celebrate() {
   buildShareGrid();
   buildShareNames();
   launchConfetti();
   celebrationEl.classList.remove("hidden");
   document.body.classList.add("playing");
+  cachedShareFile = null;
+  prepareShareFile();
 }
 
 closeCelebrationBtn.addEventListener("click", () => {
@@ -825,13 +840,16 @@ async function generateShareCanvas() {
 async function triggerImageAction(btn) {
   btn.disabled = true;
   try {
-    const canvas = await generateShareCanvas();
-    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-    const file = new File([blob], "kellogg-farewell-26.png", { type: "image/png" });
+    let file = cachedShareFile;
+    if (!file) {
+      const canvas = await generateShareCanvas();
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      file = new File([blob], "kellogg-farewell-26.png", { type: "image/png" });
+    }
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ files: [file] });
     } else {
-      const url = URL.createObjectURL(blob);
+      const url = URL.createObjectURL(file);
       const link = document.createElement("a");
       link.download = "kellogg-farewell-26.png";
       link.href = url;
