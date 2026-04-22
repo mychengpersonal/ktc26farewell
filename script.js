@@ -7,12 +7,8 @@
      - prompt: the clue text shown for that name
    ============================================================ */
 
-// TEMP test toggle: when true, every cell's correct answer is "A" regardless
-// of the real name. Use this to eyeball the green/red feedback + the full-
-// correct celebration without having to know each name. Set to false to
-// restore real answers.
-const TEST_ALL_A = false;
-const DEV_MODE = true;
+// Dev mode toggle: when true, display skip to solution button
+const DEV_MODE = false;
 
 const PEOPLE = [
   { name: "HUMPHREY",  prompt: "洋派兵馬俑" },
@@ -803,13 +799,23 @@ async function generateShareCanvas() {
   document.body.appendChild(clone);
   try {
     await document.fonts.ready;
-    return await html2canvas(clone, {
+    const raw = await html2canvas(clone, {
       scale: 2,
       useCORS: true,
-      backgroundColor: "#FFFDF6",
+      backgroundColor: null,
       logging: false,
       width: 440,
     });
+    // Clip to rounded corners matching the card's border-radius (20px × scale 2 = 40px).
+    const rounded = document.createElement("canvas");
+    rounded.width = raw.width;
+    rounded.height = raw.height;
+    const ctx = rounded.getContext("2d");
+    ctx.beginPath();
+    ctx.roundRect(0, 0, raw.width, raw.height, 40);
+    ctx.clip();
+    ctx.drawImage(raw, 0, 0);
+    return rounded;
   } finally {
     document.body.removeChild(clone);
   }
