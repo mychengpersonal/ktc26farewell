@@ -112,21 +112,30 @@
         </div>
       </div>
 
-      <div class="share-prompt">
-        <div class="prompt-icon">📸</div>
-        <div class="prompt-text">
-          <strong>Take a screenshot!</strong><br />
-          Share it on Instagram to send your 26's off in style.
-        </div>
+      <div class="download-area">
+        <button class="share-btn" id="downloadBtn" aria-label="Save image">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <button class="close-btn" id="closeCelebration">Back to Home</button>
+        <button class="share-btn" id="shareBtn" aria-label="Share">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+            <polyline points="16 6 12 2 8 6"/>
+            <line x1="12" y1="2" x2="12" y2="15"/>
+          </svg>
+        </button>
       </div>
-
-      <button class="close-btn" id="closeCelebration">Back to Home</button>
     </div>
 
     <!-- Toast message -->
     <div class="toast hidden" id="toast"></div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

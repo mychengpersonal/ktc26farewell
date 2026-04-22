@@ -12,6 +12,7 @@
 // correct celebration without having to know each name. Set to false to
 // restore real answers.
 const TEST_ALL_A = false;
+const DEV_MODE = true;
 
 const PEOPLE = [
   { name: "HUMPHREY",  prompt: "洋派兵馬俑" },
@@ -781,6 +782,79 @@ closeCelebrationBtn.addEventListener("click", () => {
   document.body.classList.remove("playing");
 });
 
+document.getElementById("downloadBtn").addEventListener("click", downloadShareCard);
+document.getElementById("shareBtn").addEventListener("click", shareCard);
+
+// Clones #shareCard onto <body> (away from the purple overlay ancestor) and
+// renders it to a canvas. Both download and share use this.
+async function generateShareCanvas() {
+  const card = document.getElementById("shareCard");
+  const clone = card.cloneNode(true);
+  Object.assign(clone.style, {
+    position: "fixed",
+    left: "-9999px",
+    top: "0",
+    width: "440px",
+    maxWidth: "440px",
+    animation: "none",
+    transform: "none",
+    opacity: "1",
+  });
+  document.body.appendChild(clone);
+  try {
+    await document.fonts.ready;
+    return await html2canvas(clone, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#FFFDF6",
+      logging: false,
+      width: 440,
+    });
+  } finally {
+    document.body.removeChild(clone);
+  }
+}
+
+async function downloadShareCard() {
+  const btn = document.getElementById("downloadBtn");
+  btn.disabled = true;
+  try {
+    const canvas = await generateShareCanvas();
+    const link = document.createElement("a");
+    link.download = "kellogg-farewell-26.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function shareCard() {
+  const btn = document.getElementById("shareBtn");
+  btn.disabled = true;
+  try {
+    const canvas = await generateShareCanvas();
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+    const file = new File([blob], "kellogg-farewell-26.png", { type: "image/png" });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file] });
+    } else {
+      // Desktop fallback: download the image instead
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = "kellogg-farewell-26.png";
+      link.href = url;
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Sharing not supported here — image saved instead 📥");
+    }
+  } catch (err) {
+    if (err.name !== "AbortError") showToast("Couldn't share — try the Save button instead.");
+  } finally {
+    btn.disabled = false;
+  }
+}
+
 /* ---------- Restart flow ---------- */
 function restartGame() {
   // Clear every cell value; keep the same layout & clues.
@@ -894,6 +968,18 @@ function init() {
   if (state.unplaced.length) {
     console.warn("Some names could not be placed:", state.unplaced.map(p => p.name));
     showToast(`Heads up: ${state.unplaced.length} name(s) couldn't fit this layout.`, 3500);
+  }
+
+  if (DEV_MODE) {
+    const skipBtn = document.createElement("button");
+    skipBtn.textContent = "⚡ Skip to Solution";
+    skipBtn.style.cssText = "display:block;margin:8px auto;padding:6px 16px;background:#c0392b;color:#fff;border:none;border-radius:12px;font-size:12px;cursor:pointer;font-family:inherit;opacity:0.75;";
+    skipBtn.addEventListener("click", () => {
+      for (const k in state.cells) state.cells[k].value = state.cells[k].answer;
+      refreshUI();
+      celebrate();
+    });
+    document.querySelector(".restart-wrap").insertAdjacentElement("afterend", skipBtn);
   }
 }
 
