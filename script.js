@@ -8,7 +8,7 @@
    ============================================================ */
 
 // Dev mode toggle: when true, display skip to solution button
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 const PEOPLE = [
   { name: "HUMPHREY",  prompt: "洋派兵馬俑" },
