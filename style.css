@@ -627,6 +627,7 @@ body.playing {
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
   transition: transform 0.1s ease, background 0.15s ease;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
 .share-btn:active { transform: translateY(1px); }
@@ -648,6 +649,7 @@ body.playing {
   font-family: 'Inter', sans-serif;
 }
 
+.close-btn { touch-action: manipulation; }
 .close-btn:active { transform: translateY(1px); }
 
 /* ================== RESTART BUTTON ================== */

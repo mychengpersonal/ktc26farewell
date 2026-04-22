@@ -8,7 +8,7 @@
    ============================================================ */
 
 // Dev mode toggle: when true, display skip to solution button
-const DEV_MODE = false;
+const DEV_MODE = true;
 
 const PEOPLE = [
   { name: "HUMPHREY",  prompt: "洋派兵馬俑" },
@@ -778,8 +778,7 @@ closeCelebrationBtn.addEventListener("click", () => {
   document.body.classList.remove("playing");
 });
 
-document.getElementById("downloadBtn").addEventListener("click", downloadShareCard);
-document.getElementById("shareBtn").addEventListener("click", shareCard);
+document.getElementById("shareBtn").addEventListener("click", e => triggerImageAction(e.currentTarget));
 
 // Clones #shareCard onto <body> (away from the purple overlay ancestor) and
 // renders it to a canvas. Both download and share use this.
@@ -821,22 +820,9 @@ async function generateShareCanvas() {
   }
 }
 
-async function downloadShareCard() {
-  const btn = document.getElementById("downloadBtn");
-  btn.disabled = true;
-  try {
-    const canvas = await generateShareCanvas();
-    const link = document.createElement("a");
-    link.download = "kellogg-farewell-26.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-async function shareCard() {
-  const btn = document.getElementById("shareBtn");
+// On mobile: opens the native share sheet (user can pick Save Image, Instagram, etc.)
+// On desktop: falls back to a browser file download.
+async function triggerImageAction(btn) {
   btn.disabled = true;
   try {
     const canvas = await generateShareCanvas();
@@ -845,17 +831,15 @@ async function shareCard() {
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({ files: [file] });
     } else {
-      // Desktop fallback: download the image instead
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.download = "kellogg-farewell-26.png";
       link.href = url;
       link.click();
       URL.revokeObjectURL(url);
-      showToast("Sharing not supported here — image saved instead 📥");
     }
   } catch (err) {
-    if (err.name !== "AbortError") showToast("Couldn't share — try the Save button instead.");
+    if (err.name !== "AbortError") showToast("Couldn't complete — please try again.");
   } finally {
     btn.disabled = false;
   }
