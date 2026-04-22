@@ -1,0 +1,801 @@
+/* ============================================================
+   Kellogg Class of 2026 · Farewell Crossword
+   Mobile-first styles · Kellogg purple #4F2582
+   ============================================================ */
+
+:root {
+  --purple: #4F2582;
+  --purple-light: #6B3AA0;
+  --purple-dark: #2F1550;
+  --purple-soft: #F2EBFA;
+  --gold: #E6B422;
+  --gold-light: #F2D06B;
+  --cream: #FFF8E7;
+  --ink: #1C1230;
+  --muted: #6B5B85;
+  /* Cell size always fits the viewport: take the narrower of viewport or
+     the 500px app cap, subtract horizontal chrome, divide by column count.
+     Minimum 14px covers the pathological "very tall phone + very wide
+     grid" case without clipping. */
+  --cell-size: clamp(14px, calc((min(100vw, 500px) - 30px - (var(--grid-cols, 13) - 1) * 2px) / var(--grid-cols, 13)), 40px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(230, 180, 34, 0.08), transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(79, 37, 130, 0.08), transparent 55%),
+    linear-gradient(180deg, #FBF7FF 0%, #FFFFFF 70%);
+  background-attachment: fixed;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--ink);
+  min-height: 100vh;
+  overscroll-behavior-y: contain;
+}
+
+body.playing {
+  overflow: hidden;
+}
+
+/* Disable text selection on UI chrome */
+.top-banner, .hero, .clue-bar, .grid, .keyboard, .clue-lists, .foot {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#app {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 10px 10px calc(210px + var(--safe-bottom));
+  min-height: 100vh;
+  position: relative;
+}
+
+/* ================== TOP BANNER ================== */
+.top-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-light) 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 8px 20px rgba(79, 37, 130, 0.25);
+  position: relative;
+  overflow: hidden;
+}
+
+.top-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 10% 50%, rgba(255,255,255,0.12), transparent 40%),
+    radial-gradient(circle at 90% 50%, rgba(230, 180, 34, 0.15), transparent 40%);
+  pointer-events: none;
+}
+
+.banner-crest {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.banner-text {
+  text-align: center;
+  flex: 1;
+}
+
+.banner-school {
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  letter-spacing: 2.5px;
+  font-weight: 700;
+  opacity: 0.92;
+}
+
+.banner-year {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  letter-spacing: 4px;
+  font-weight: 900;
+  margin-top: 2px;
+  color: var(--gold-light);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+/* ================== HERO ================== */
+.hero {
+  text-align: center;
+  padding: 18px 8px 8px;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  color: var(--purple);
+  font-size: 28px;
+  margin: 0;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+}
+
+.hero-sub {
+  color: var(--muted);
+  margin: 6px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ================== CLUE BAR ================== */
+.clue-bar {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+  color: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  margin: 10px 0;
+  box-shadow: 0 4px 14px rgba(79, 37, 130, 0.25);
+  min-height: 84px;
+}
+
+.clue-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.clue-nav {
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.clue-nav:active { background: rgba(255, 255, 255, 0.32); }
+
+.clue-label {
+  font-size: 12px;
+  letter-spacing: 2px;
+  font-weight: 700;
+  color: var(--gold-light);
+  text-transform: uppercase;
+}
+
+.clue-text {
+  /* Chinese-friendly font stack (prompts are mostly Traditional Chinese
+     with some English mixed in). */
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei",
+               "Heiti TC", "Hiragino Sans TC", "Inter", sans-serif;
+  font-size: 18px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #fff;
+}
+
+/* ================== GRID ================== */
+.grid-wrap {
+  display: flex;
+  /* "safe center" centers when the grid fits, falls back to flex-start
+     when the grid is wider than the viewport — which makes the left
+     edge reachable via horizontal scroll instead of being clipped off
+     by a negative offset (the default flex/justify-content: center bug). */
+  justify-content: safe center;
+  padding: 4px 0;
+  margin: 6px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.grid {
+  display: grid;
+  gap: 2px;
+  background: var(--purple-dark);
+  padding: 3px;
+  border-radius: 6px;
+  grid-template-columns: repeat(var(--grid-cols, 13), var(--cell-size));
+  grid-auto-rows: var(--cell-size);
+  box-shadow: 0 6px 18px rgba(79, 37, 130, 0.18);
+}
+
+.cell {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--cell-size) * 0.52);
+  font-weight: 700;
+  color: var(--ink);
+  position: relative;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: background 0.12s ease;
+}
+
+.cell.empty {
+  background: transparent;
+  cursor: default;
+  pointer-events: none;
+}
+
+.cell.selected {
+  background: var(--gold);
+  color: #fff;
+  box-shadow: inset 0 0 0 2px var(--purple-dark);
+}
+
+.cell.highlight {
+  background: #FFF4C7;
+}
+
+.cell.wrong {
+  animation: shake 0.35s;
+}
+
+/* Live correctness feedback — colors apply to the typed letter only,
+   so numbering stays readable and selection/highlight states are preserved. */
+.cell.correct .letter   { color: #1B8A3F; }
+.cell.incorrect .letter { color: #D32F2F; }
+/* Keep contrast when the cell is the currently selected one (gold bg). */
+.cell.selected.correct   .letter { color: #0C5C27; }
+.cell.selected.incorrect .letter { color: #8B1A1A; }
+
+.cell .number {
+  position: absolute;
+  top: 1px;
+  left: 2px;
+  font-size: calc(var(--cell-size) * 0.26);
+  font-weight: 600;
+  color: var(--purple);
+  line-height: 1;
+  pointer-events: none;
+}
+
+.cell.selected .number { color: #fff; }
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
+
+/* ================== CLUE LISTS ================== */
+.clue-lists {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.clue-col h3 {
+  font-size: 12px;
+  letter-spacing: 3px;
+  color: var(--purple);
+  margin: 0 0 6px;
+  font-weight: 700;
+}
+
+.clue-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.clue-list li {
+  background: #fff;
+  border-radius: 8px;
+  padding: 7px 9px;
+  margin-bottom: 5px;
+  border-left: 3px solid var(--purple-light);
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(79, 37, 130, 0.06);
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.clue-list li.done {
+  opacity: 0.5;
+  text-decoration: line-through;
+  border-left-color: var(--gold);
+}
+
+.clue-list li.active {
+  border-left-color: var(--gold);
+  background: #FFFBEC;
+  transform: translateX(2px);
+}
+
+.clue-list li .num {
+  font-weight: 700;
+  color: var(--purple);
+  margin-right: 4px;
+}
+
+.clue-list li .prompt-text {
+  /* Chinese-friendly font stack for prompt text in the Across/Down lists. */
+  font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei",
+               "Heiti TC", "Hiragino Sans TC", "Inter", sans-serif;
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+/* ================== FOOTER ================== */
+.foot {
+  text-align: center;
+  padding: 14px 0 4px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* ================== KEYBOARD ================== */
+.keyboard {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #DDD4E6;
+  padding: 8px 4px calc(10px + var(--safe-bottom));
+  box-shadow: 0 -4px 14px rgba(0,0,0,0.08);
+  z-index: 100;
+}
+
+.kb-row {
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+  margin: 4px 2px;
+}
+
+.key {
+  flex: 1;
+  min-width: 0;
+  height: 42px;
+  background: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+}
+
+.key:active {
+  background: var(--purple-soft);
+  transform: translateY(1px);
+  box-shadow: 0 0 0 rgba(0,0,0,0.2);
+}
+
+.key.wide { flex: 1.6; font-size: 14px; }
+
+.key.special {
+  background: var(--purple);
+  color: #fff;
+  font-size: 14px;
+}
+
+.key.special:active { background: var(--purple-dark); }
+
+/* ================== CELEBRATION ================== */
+.celebration {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 10%, rgba(230, 180, 34, 0.25), transparent 50%),
+    radial-gradient(circle at 85% 80%, rgba(107, 58, 160, 0.35), transparent 50%),
+    linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+  z-index: 500;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 14px 30px;
+  color: #fff;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.celebration.hidden { display: none; }
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -20px;
+  width: 8px;
+  height: 14px;
+  border-radius: 1px;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0%   { transform: translateY(-40px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(960deg); opacity: 0.9; }
+}
+
+/* ============ The Share Card (the money shot) ============ */
+.share-card {
+  position: relative;
+  z-index: 10;
+  background: #FFFDF6;
+  color: var(--purple-dark);
+  border-radius: 20px;
+  max-width: 440px;
+  margin: 0 auto;
+  padding: 0 0 20px;
+  box-shadow: 0 24px 50px rgba(0,0,0,0.35), 0 0 0 3px var(--gold);
+  overflow: hidden;
+  animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+
+@keyframes popIn {
+  0%   { transform: scale(0.85); opacity: 0; }
+  100% { transform: scale(1);    opacity: 1; }
+}
+
+.share-banner {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--purple-dark) 100%);
+  color: #fff;
+  padding: 14px 16px;
+  position: relative;
+}
+
+.share-banner::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+
+.share-banner-inner {
+  text-align: center;
+}
+
+.share-school {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  opacity: 0.9;
+}
+
+.share-year {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  letter-spacing: 5px;
+  font-weight: 900;
+  color: var(--gold-light);
+  margin-top: 3px;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.25);
+}
+
+.share-deco {
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 10px;
+  padding: 10px 0 2px;
+}
+
+.share-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  color: var(--purple);
+  text-align: center;
+  margin: 4px 16px 4px;
+  font-weight: 900;
+}
+
+.share-sub {
+  text-align: center;
+  margin: 0 16px 10px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.share-grid-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 6px 12px 10px;
+  overflow: hidden;
+}
+
+.share-grid {
+  display: grid;
+  gap: 1.5px;
+  background: var(--purple-dark);
+  padding: 2px;
+  border-radius: 4px;
+  grid-template-columns: repeat(var(--grid-cols, 13), var(--share-cell-size, 22px));
+  grid-auto-rows: var(--share-cell-size, 22px);
+}
+
+.share-cell {
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--share-cell-size, 22px) * 0.52);
+  font-weight: 700;
+  color: var(--purple-dark);
+  position: relative;
+}
+
+.share-cell.empty { background: transparent; }
+
+.share-cell .num {
+  position: absolute;
+  top: 0px;
+  left: 1px;
+  font-size: calc(var(--share-cell-size, 22px) * 0.28);
+  font-weight: 600;
+  color: var(--purple);
+  line-height: 1;
+}
+
+.share-names {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 4px 18px;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.share-footer {
+  border-top: 1.5px dashed rgba(79, 37, 130, 0.25);
+  margin: 10px 18px 0;
+  padding-top: 10px;
+  text-align: center;
+}
+
+.share-hashtag {
+  font-size: 11px;
+  color: var(--purple);
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.share-tagline {
+  font-family: 'Playfair Display', serif;
+  font-size: 13px;
+  color: var(--purple-dark);
+  margin-top: 4px;
+  font-style: italic;
+}
+
+/* Screenshot prompt */
+.share-prompt {
+  position: relative;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1.5px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  padding: 14px;
+  margin: 16px auto 10px;
+  max-width: 440px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  backdrop-filter: blur(4px);
+}
+
+.prompt-icon {
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.prompt-text {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #fff;
+}
+
+.close-btn {
+  position: relative;
+  z-index: 10;
+  display: block;
+  margin: 6px auto 0;
+  background: var(--gold);
+  color: var(--purple-dark);
+  border: none;
+  border-radius: 22px;
+  padding: 11px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+  font-family: 'Inter', sans-serif;
+}
+
+.close-btn:active { transform: translateY(1px); }
+
+/* ================== RESTART BUTTON ================== */
+.restart-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 18px 0 4px;
+}
+
+.restart-btn {
+  background: var(--gold);
+  color: var(--purple-dark);
+  border: 1.5px solid #C9941A;
+  border-radius: 24px;
+  padding: 10px 22px 10px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 12px rgba(79, 37, 130, 0.2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.restart-btn.hidden { display: none; }
+
+.restart-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 6px rgba(79, 37, 130, 0.2);
+}
+
+.restart-icon {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-block;
+  transform: translateY(-0.5px);
+}
+
+/* ================== CONFIRM MODAL ================== */
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(28, 18, 48, 0.55);
+  backdrop-filter: blur(3px);
+  z-index: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: overlayIn 0.2s ease;
+}
+
+.confirm-overlay.hidden { display: none; }
+
+@keyframes overlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.confirm-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px 20px 18px;
+  max-width: 320px;
+  width: 100%;
+  box-shadow: 0 18px 40px rgba(0,0,0,0.3);
+  text-align: center;
+  animation: confirmIn 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes confirmIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.confirm-box h3 {
+  font-family: 'Playfair Display', serif;
+  color: var(--purple);
+  font-size: 22px;
+  margin: 0 0 6px;
+  font-weight: 900;
+}
+
+.confirm-box p {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-actions button {
+  flex: 1;
+  border: none;
+  border-radius: 22px;
+  padding: 11px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-cancel {
+  background: #EFEAF5;
+  color: var(--purple-dark);
+}
+
+.confirm-ok {
+  background: var(--purple);
+  color: #fff;
+  box-shadow: 0 3px 10px rgba(79, 37, 130, 0.3);
+}
+
+.confirm-cancel:active, .confirm-ok:active {
+  transform: translateY(1px);
+}
+
+/* ================== TOAST ================== */
+.toast {
+  position: fixed;
+  bottom: 220px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--purple-dark);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  z-index: 300;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  animation: toastIn 0.3s ease;
+  max-width: 86%;
+  text-align: center;
+}
+
+.toast.hidden { display: none; }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* ================== Small phones tweak ================== */
+@media (max-width: 360px) {
+  .hero-title { font-size: 24px; }
+  .clue-text { font-size: 16px; }
+  .clue-list li .prompt-text { font-size: 12px; }
+  .key { height: 38px; font-size: 15px; }
+}

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+<meta name="theme-color" content="#4F2582" />
+<title>Kellogg Class of 2026 · Farewell Crossword</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Restart confirmation modal -->
+  <div id="restartConfirm" class="confirm-overlay hidden">
+    <div class="confirm-box">
+      <h3>Start over?</h3>
+      <p>This will clear every letter so someone else can play from scratch.</p>
+      <div class="confirm-actions">
+        <button class="confirm-cancel" id="confirmCancel">Cancel</button>
+        <button class="confirm-ok" id="confirmOk">Yes, restart</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="app">
+    <!-- Top Kellogg-branded banner -->
+    <header class="top-banner" id="topBanner">
+      <div class="banner-crest">
+        <span class="crest-icon">🎓</span>
+      </div>
+      <div class="banner-text">
+        <div class="banner-school">NORTHWESTERN · KELLOGG</div>
+        <div class="banner-year">CLASS OF 2026</div>
+      </div>
+      <div class="banner-crest">
+        <span class="crest-icon">💜</span>
+      </div>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">Farewell Crossword</h1>
+      <p class="hero-sub">A little love letter from your 27's to our 26's 💜</p>
+    </section>
+
+    <!-- Current clue bar -->
+    <section class="clue-bar">
+      <div class="clue-meta">
+        <button class="clue-nav" id="prevClueBtn" aria-label="Previous clue">◀</button>
+        <div class="clue-label" id="clueLabel">Tap any cell to start</div>
+        <button class="clue-nav" id="nextClueBtn" aria-label="Next clue">▶</button>
+      </div>
+      <div class="clue-text" id="clueText">Each word is a 26'. Each clue is their fun fact.</div>
+    </section>
+
+    <!-- The crossword grid -->
+    <section class="grid-wrap">
+      <div class="grid" id="grid" role="grid"></div>
+    </section>
+
+    <!-- Clue lists (scrollable) -->
+    <section class="clue-lists">
+      <div class="clue-col">
+        <h3>ACROSS</h3>
+        <ol class="clue-list" id="acrossList"></ol>
+      </div>
+      <div class="clue-col">
+        <h3>DOWN</h3>
+        <ol class="clue-list" id="downList"></ol>
+      </div>
+    </section>
+
+    <div class="restart-wrap">
+      <button id="restartBtn" class="restart-btn" aria-label="Play again">
+        <span class="restart-icon">↻</span> Play Again
+      </button>
+    </div>
+
+    <footer class="foot">
+      <p>Made with 💜 for our Kellogg 26's</p>
+    </footer>
+
+    <!-- Custom on-screen keyboard -->
+    <div class="keyboard" id="keyboard"></div>
+
+    <!-- Celebration overlay -->
+    <div class="celebration hidden" id="celebration">
+      <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+      <div class="share-card" id="shareCard">
+        <div class="share-banner">
+          <div class="share-banner-inner">
+            <span class="share-school">NORTHWESTERN · KELLOGG</span>
+            <span class="share-year">CLASS OF 2026</span>
+          </div>
+        </div>
+
+        <div class="share-deco">🎓 ✨ 💜 ✨ 🎓</div>
+
+        <h2 class="share-title">We did it!</h2>
+        <p class="share-sub">Every name. Every story. Every 26' we'll miss.</p>
+
+        <div class="share-grid-wrap">
+          <div class="share-grid" id="shareGrid"></div>
+        </div>
+
+        <p class="share-names" id="shareNames"></p>
+
+        <div class="share-footer">
+          <div class="share-hashtag">#KelloggMBA · #ClassOf2026</div>
+          <div class="share-tagline">Farewell, 26's. Love, your 27's.</div>
+        </div>
+      </div>
+
+      <div class="share-prompt">
+        <div class="prompt-icon">📸</div>
+        <div class="prompt-text">
+          <strong>Take a screenshot!</strong><br />
+          Share it on Instagram to send your 26's off in style.
+        </div>
+      </div>
+
+      <button class="close-btn" id="closeCelebration">Back to Home</button>
+    </div>
+
+    <!-- Toast message -->
+    <div class="toast hidden" id="toast"></div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
